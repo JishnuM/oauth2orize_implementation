@@ -1,0 +1,22 @@
+{
+  "name": "humeris_insidentes",
+  "version": "0.0.1",
+  "description": "collaborative backend service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express" : "2.x.x",
+    "ejs": "0.7.x",
+    "oauth2orize": "0.x.x",
+    "passport": "~0.1.12",
+    "passport-local": "0.1.x",
+    "passport-http": "0.2.x",
+    "passport-http-bearer": "0.2.x",
+    "passport-oauth2-client-password": "0.1.x",
+    "connect-ensure-login": "0.1.x"
+  },
+  "author": "jishnu",
+  "license": "MIT"
+}
