@@ -1,11 +1,11 @@
 /**
  * Module dependencies.
  */
-var oauth2orize = require('oauth2orize')
-  , passport = require('passport')
-  , login = require('connect-ensure-login')
-  , db = require('./db')
-  , utils = require('./utils');
+var oauth2orize = require('oauth2orize'),
+    passport = require('passport'),
+    login = require('connect-ensure-login'),
+    db = require('./db'),
+    utils = require('./utils');
 
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();

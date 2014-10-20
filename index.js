@@ -1,23 +1,30 @@
 /**
  * Module dependencies.
  */
-var express = require('express')
-  , passport = require('passport')
-  , site = require('./site')
-  , oauth2 = require('./oauth2')
-  , user = require('./user')
-  , client = require('./client')
-  , util = require('util')
-  , implicit = require('./implicit');
+var express = require('express'), 
+    http = require('http'),
+    morgan = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    session = require('express-session'),
+    errorHandler = require('errorhandler'),
+    passport = require('passport'),
+    site = require('./site'),
+    oauth2 = require('./oauth2'),
+    user = require('./user'),
+    client = require('./client'),
+    util = require('util'),
+    implicit = require('./implicit');
   
 // Express configuration
   
-var app = express.createServer();
+var app = express();
 app.set('view engine', 'ejs');
-app.use(express.logger());
-app.use(express.cookieParser());
-app.use(express.bodyParser());
-app.use(express.session({ secret: 'keyboard cat' }));
+app.use(morgan('combined'));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(session({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
 /*
 app.use(function(req, res, next) {
   console.log('-- session --');
@@ -29,8 +36,7 @@ app.use(function(req, res, next) {
 */
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(app.router);
-app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+app.use(errorHandler({ dumpExceptions: true, showStack: true }));
 
 // Passport configuration
 
@@ -53,4 +59,4 @@ app.post('/oauth/token', oauth2.token);
 app.get('/api/userinfo', user.info);
 app.get('/api/clientinfo', client.info);
 
-app.listen(3000);
+http.createServer(app).listen(3000);
