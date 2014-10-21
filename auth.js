@@ -29,11 +29,11 @@ passport.use(new LocalStrategy(
 ));
 
 passport.serializeUser(function(user, done) {
-  done(null, user.id);
+  done(null, user.userId);
 });
 
 passport.deserializeUser(function(id, done) {
-  db.users.find(id, function (err, user) {
+  db.users.findByUserId(id, function (err, user) {
     done(err, user);
   });
 });
