@@ -14,8 +14,8 @@ var express = require('express'),
     user = require('./user'),
     client = require('./client'),
     util = require('util'),
-    implicit = require('./implicit');
-  
+    implicit = require('./implicit'),
+    register = require('./register');  
 // Express configuration
   
 var app = express();
@@ -48,6 +48,11 @@ app.get('/login', site.loginForm);
 app.post('/login', site.login);
 app.get('/logout', site.logout);
 app.get('/account', site.account);
+
+app.get('/registration', register.registerFormUser);
+app.post('/registration', register.registerUser);
+app.get('/client/registration', register.registerFormClient);
+app.post('/client/registration', register.registerClient);
 
 app.get('/loginImplicit', implicit.loginForm);
 app.post('/loginImplicit', implicit.login);
