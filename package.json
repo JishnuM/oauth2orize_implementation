@@ -1,7 +1,7 @@
 {
-  "name": "humeris_insidentes",
+  "name": "oauth2_server",
   "version": "0.0.1",
-  "description": "collaborative backend service",
+  "description": "Oauth 2 Server",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
