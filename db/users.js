@@ -1,12 +1,14 @@
-var mongoose = require('mongoose');
+var mongoose = require('mongoose'),
+    passportLocalMongoose = require('passport-local-mongoose');
 
 var UserSchema = new mongoose.Schema({
     userId: String,
     name: String,
     username: String,
-    password: String,
     info: mongoose.Schema.Types.Mixed
 });
+
+UserSchema.plugin(passportLocalMongoose);
 
 var User = mongoose.model('User', UserSchema);
 
@@ -19,14 +21,11 @@ exports.findByUsername = function(username, done){
 }
 
 exports.save = function(username, password, name, userId, done){
-    var user = new User({
-        username: username, 
-        password: password,
-        name: name,
-        userId: userId,
-        info: {}
-    });
-    user.save(done);
+    User.register(
+        new User({username: username, name:name, userId: userId}),
+        password, 
+        done
+    );
 }
 
 exports.updateInfoById = function(id, newInfo, done){
@@ -36,3 +35,9 @@ exports.updateInfoById = function(id, newInfo, done){
         doc.save(done);
     });
 }
+
+exports.authenticate = User.authenticate();
+
+exports.serializeUser = User.serializeUser();
+
+exports.deserializeUser = User.deserializeUser();
