@@ -5,7 +5,7 @@ var redirect_url = window.location.origin + "/blank.html"; //Ask user to set - c
 var app_id = "ej4Nf2ID8IH1"; //As per registration
 
 var login = function(){
-    var url = server_host + "loginImplicit?clientId=" + app_id + 
+    var url = server_host + "authImplicit?clientId=" + app_id + 
                 "&redirectUri=" + redirect_url;
     var login_window = window.open(url, "Oauth-Login", "width=800, height=400");
 

@@ -55,6 +55,7 @@ app.post('/registration', register.registerUser);
 app.get('/client/registration', register.registerFormClient);
 app.post('/client/registration', register.registerClient);
 
+app.get('/authImplicit', implicit.autologin);
 app.get('/loginImplicit', implicit.loginForm);
 app.post('/loginImplicit', implicit.login);
 
