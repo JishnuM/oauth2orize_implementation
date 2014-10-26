@@ -1,7 +1,7 @@
 /**
  * Module dependencies.
  */
-var express = require('express'), 
+var express = require('express'),
     http = require('http'),
     morgan = require('morgan'),
     cookieParser = require('cookie-parser'),
@@ -15,9 +15,10 @@ var express = require('express'),
     client = require('./client'),
     util = require('util'),
     implicit = require('./implicit'),
-    register = require('./register');  
+    register = require('./register'),
+    api = require('./api');
 // Express configuration
-  
+
 var app = express();
 app.set('view engine', 'ejs');
 app.use(morgan('combined'));
@@ -63,5 +64,8 @@ app.post('/oauth/token', oauth2.token);
 
 app.get('/api/userinfo', user.info);
 app.get('/api/clientinfo', client.info);
+
+app.get('/api/me', api.userinfo);
+app.post('/api/me', api.editinfo);
 
 http.createServer(app).listen(3000);
