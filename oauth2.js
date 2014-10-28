@@ -50,7 +50,7 @@ server.deserializeClient(function(id, done) {
 
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
   var code = utils.uid(16)
-  
+  console.log(ares); 
   db.authorizationCodes.save(code, client.id, redirectURI, user.id, function(err) {
     if (err) { return done(err); }
     done(null, code);
@@ -65,8 +65,14 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
 
 server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
     var token = utils.uid(256);
-
-    db.accessTokens.save(token, user.id, client.clientId, function(err) {
+    var scopeArray = JSON.parse(ares.scope);
+    if(scopeArray.indexOf(client.name + "-read")===-1){
+        scopeArray.push(client.name + "-read");
+    }
+    if(scopeArray.indexOf(client.name + "-write")===-1){
+        scopeArray.push(client.name + "-write");
+    }
+    db.accessTokens.save(token, user.id, client.clientId, scopeArray, function(err) {
         if (err) { return done(err); }
         done(null, token);
     });
@@ -85,9 +91,9 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
     if (redirectURI !== authCode.redirectURI) { return done(null, false); }
     
     var token = utils.uid(256)
-    db.accessTokens.save(token, authCode.userID, authCode.clientID, function(err) {
-      if (err) { return done(err); }
-      done(null, token);
+    db.accessTokens.save(token, authCode.userID, authCode.clientID, [], function(err) {
+        if (err) { return done(err); }
+        done(null, token);
     });
   });
 }));
@@ -119,7 +125,7 @@ server.exchange(oauth2orize.exchange.password(function(client, username, passwor
             }
             //Everything validated, return the token
             var token = utils.uid(256);
-            db.accessTokens.save(token, user.id, client.clientId, function(err) {
+            db.accessTokens.save(token, user.id, client.clientId, [], function(err) {
                 if (err) { return done(err); }
                 done(null, token);
             });
@@ -145,7 +151,7 @@ server.exchange(oauth2orize.exchange.clientCredentials(function(client, scope, d
         }
         var token = utils.uid(256);
         //Pass in a null for user id since there is no user with this grant type
-        db.accessTokens.save(token, null, client.clientId, function(err) {
+        db.accessTokens.save(token, null, client.clientId, [], function(err) {
             if (err) { return done(err); }
             done(null, token);
         });
@@ -181,7 +187,12 @@ exports.authorization = [
     });
   }),
   function(req, res){
-    res.render('dialog', { transactionID: req.oauth2.transactionID, user: req.user, client: req.oauth2.client });
+    res.render('dialog', { 
+        transactionID: req.oauth2.transactionID, 
+        user: req.user, 
+        client: req.oauth2.client,
+        scope: req.oauth2.req.scope 
+    });
   }
 ]
 
@@ -194,7 +205,9 @@ exports.authorization = [
 
 exports.decision = [
   login.ensureLoggedIn(),
-  server.decision()
+  server.decision(function(req, done){
+    return done(null, { scope: req.body.scope });
+  })
 ]
 
 
