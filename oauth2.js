@@ -66,6 +66,9 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
 server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
     var token = utils.uid(256);
     var scopeArray = JSON.parse(ares.scope);
+    if(!(scopeArray instanceof Array)){
+        scopeArray = [];
+    }
     if(scopeArray.indexOf(client.name + "-read")===-1){
         scopeArray.push(client.name + "-read");
     }
