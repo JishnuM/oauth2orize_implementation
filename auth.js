@@ -72,25 +72,20 @@ passport.use(new BearerStrategy(
     db.accessTokens.find(accessToken, function(err, token) {
       if (err) { return done(err); }
       if (!token) { return done(null, false); }
-
-      if(token.userID != null) {
-          db.users.find(token.userID, function(err, user) {
+      if(token.userId != null) {
+          db.users.findByUserId(token.userId, function(err, user) {
               if (err) { return done(err); }
               if (!user) { return done(null, false); }
-              // to keep this example simple, restricted scopes are not implemented,
-              // and this is just for illustrative purposes
-              var info = { scope: '*' }
+              var info = token.scope;
               done(null, user, info);
           });
       } else {
           //The request came from a client only since userID is null
           //therefore the client is passed back instead of a user
-          db.clients.findByClientId(token.clientID, function(err, client) {
+          db.clients.findByClientId(token.clientId, function(err, client) {
              if(err) { return done(err); }
               if(!client) { return done(null, false); }
-              // to keep this example simple, restricted scopes are not implemented,
-              // and this is just for illustrative purposes
-              var info = { scope: '*' }
+              var info = token.scope;
               done(null, client, info);
           });
       }

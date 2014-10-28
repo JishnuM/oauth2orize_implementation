@@ -51,7 +51,7 @@ server.deserializeClient(function(id, done) {
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
   var code = utils.uid(16)
   console.log(ares); 
-  db.authorizationCodes.save(code, client.id, redirectURI, user.id, function(err) {
+  db.authorizationCodes.save(code, client.clientId, redirectURI, user.userId, function(err) {
     if (err) { return done(err); }
     done(null, code);
   });
@@ -72,7 +72,7 @@ server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
     if(scopeArray.indexOf(client.name + "-write")===-1){
         scopeArray.push(client.name + "-write");
     }
-    db.accessTokens.save(token, user.id, client.clientId, scopeArray, function(err) {
+    db.accessTokens.save(token, user.userId, client.clientId, scopeArray, function(err) {
         if (err) { return done(err); }
         done(null, token);
     });
@@ -87,7 +87,7 @@ server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
 server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, done) {
   db.authorizationCodes.find(code, function(err, authCode) {
     if (err) { return done(err); }
-    if (client.id !== authCode.clientID) { return done(null, false); }
+    if (client.clientId !== authCode.clientID) { return done(null, false); }
     if (redirectURI !== authCode.redirectURI) { return done(null, false); }
     
     var token = utils.uid(256)
@@ -125,7 +125,7 @@ server.exchange(oauth2orize.exchange.password(function(client, username, passwor
             }
             //Everything validated, return the token
             var token = utils.uid(256);
-            db.accessTokens.save(token, user.id, client.clientId, [], function(err) {
+            db.accessTokens.save(token, user.userId, client.clientId, [], function(err) {
                 if (err) { return done(err); }
                 done(null, token);
             });

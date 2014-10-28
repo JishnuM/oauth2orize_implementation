@@ -1,33 +1,37 @@
 var passport = require('passport'),
     db = require('./db');
 
-//TODO Check validity of token versus endpoint
-
-exports.userinfo = [
-    passport.authenticate('bearer', { session: false }),
-    function(req, res){
-        db.users.findByUserId(req.user.id, function(err, user){
-            if(!user) {
-                res.status(400).json({status: 'error'});
+exports.userinfo = function(req, res, next){
+    passport.authenticate('bearer', {session: false},
+        function(err, user, scope){
+            if(err) { return res.status(404).json({status: 'error'}); }
+            if (!user) { return res.status(400).json({status: 'error'}); }
+            else if (scope.indexOf('info-read') === -1){
+                return res.status(401).json({status: 'unauthorized'});
             } else {
-                res.json({
-                    status: 'ok',
-                    info: user.info
+                return res.json({status: 'ok', info: user.info});
+            }
+        }
+    )(req, res, next);
+}
+
+
+exports.editinfo = function(req, res, next){
+    passport.authenticate('bearer', {session: false},
+        function(err, user, scope){
+            if(err) { return res.status(404).json({status: 'error'}); }
+            if (!user) { return res.status(400).json({status: 'error'}); }
+            else if (scope.indexOf('info-write') === -1){
+                return res.status(401).json({status: 'unauthorized'});
+            } else {
+                db.users.updateInfoById(user.userId, req.body, function(err, user){
+                    if(!user) {
+                        res.status(400).json({status: 'error'});
+                    } else {
+                        res.status(200).json({status: 'ok', info: user.info});
+                    }
                 });
             }
-        })
-    }
-]
-
-exports.editinfo = [
-    passport.authenticate('bearer', {session: false}),
-    function(req, res){
-        db.users.updateInfoById(req.user.id, req.body.info, function(err, user){
-            if(!user) {
-                res.status(400).json({status: 'error'});
-            } else {
-                res.status(200).json({status: 'ok'});
-            }
-        })
-    }
-]
+        }
+    )(req, res, next);
+} 

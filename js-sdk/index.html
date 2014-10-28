@@ -2,8 +2,15 @@
     <head>
         <title>Test for Oauth JS-SDK</title>
         <script src="./sdk.js"></script>
+        <script>
+        function example_post(){
+            return sdk.post('me/info', {'data': 'payload'});
+        }
+        </script>
     </head>
     <body>
-        <button onclick="login()">Login</button>
+        <button onclick="sdk.login()">Login</button>
+        <button onclick="sdk.get('me/info')">Info</button>
+        <button onclick="example_post()">Update</button>
     </body>
 </html>

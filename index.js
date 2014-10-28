@@ -16,7 +16,8 @@ var express = require('express'),
     util = require('util'),
     implicit = require('./implicit'),
     register = require('./register'),
-    api = require('./api');
+    api = require('./api'),
+    cors = require('cors');
 // Express configuration
 
 var app = express();
@@ -43,11 +44,20 @@ app.use(errorHandler({ dumpExceptions: true, showStack: true }));
 
 require('./auth');
 
+//CORS
+
+var corsOptions = {
+    origin: "*",
+    allowedHeaders: "Content-Type,Authorization",
+    credentials: true
+}
+
+app.options("*", cors());
 
 app.get('/', site.index);
 app.get('/login', site.loginForm);
 app.post('/login', site.login);
-app.get('/logout', site.logout);
+app.get('/logout', cors(corsOptions), site.logout);
 app.get('/account', site.account);
 
 app.get('/registration', register.registerFormUser);
@@ -63,10 +73,11 @@ app.get('/dialog/authorize', oauth2.authorization);
 app.post('/dialog/authorize/decision', oauth2.decision);
 app.post('/oauth/token', oauth2.token);
 
-app.get('/api/userinfo', user.info);
-app.get('/api/clientinfo', client.info);
 
-app.get('/api/me', api.userinfo);
-app.post('/api/me', api.editinfo);
+app.get('/api/userinfo', cors(corsOptions), user.info);
+app.get('/api/clientinfo', cors(corsOptions), client.info);
+
+app.get('/me/info', cors(corsOptions), api.userinfo);
+app.post('/me/info', cors(corsOptions), api.editinfo);
 
 http.createServer(app).listen(3000);

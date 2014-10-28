@@ -31,7 +31,9 @@ exports.save = function(username, password, name, userId, done){
 exports.updateInfoById = function(id, newInfo, done){
     User.findOne({userId: id}, function(err, doc){
         if(err) { done(err); }
+        console.log(newInfo);
         doc.info = newInfo;
+        doc.markModified('info');
         doc.save(done);
     });
 }
