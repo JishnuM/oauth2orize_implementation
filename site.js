@@ -2,7 +2,7 @@ var passport = require('passport'),
     login = require('connect-ensure-login');
 
 exports.index = function(req, res){
-    res.send('Oauth Server - NUS Cloud');
+    res.send('Oauth Server');
 }
 
 exports.loginForm = function(req, res){
