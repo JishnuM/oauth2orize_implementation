@@ -49,8 +49,7 @@ server.deserializeClient(function(id, done) {
 // values, and will be exchanged for an access token.
 
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
-  var code = utils.uid(16)
-  console.log(ares); 
+  var code = utils.uid(16);
   db.authorizationCodes.save(code, client.clientId, redirectURI, user.userId, function(err) {
     if (err) { return done(err); }
     done(null, code);
@@ -94,7 +93,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
     if (redirectURI !== authCode.redirectURI) { return done(null, false); }
     
     var token = utils.uid(256)
-    db.accessTokens.save(token, authCode.userID, authCode.clientID, [], function(err) {
+    db.accessTokens.save(token, authCode.userID, [], function(err) {
         if (err) { return done(err); }
         done(null, token);
     });
@@ -189,14 +188,57 @@ exports.authorization = [
       return done(null, client, redirectURI);
     });
   }),
-  function(req, res){
-    res.render('dialog', { 
-        transactionID: req.oauth2.transactionID, 
-        user: req.user, 
-        client: req.oauth2.client,
-        scope: req.oauth2.req.scope 
+  function(req, res, next){
+    var scope = req.oauth2.req.scope;
+    var userId = req.user.userId;
+    var clientId = req.oauth2.client.clientId;
+    db.permissions.find(userId, clientId, function(err, perm){
+        console.log(perm);
+        if (!perm){
+            db.permissions.save(userId, clientId, function(err, perm){
+                if(err) { throw err;}
+                console.log(perm.permissions);
+                return res.render('dialog', {
+                    transactionID: req.oauth2.transactionID, 
+                    user: req.user, 
+                    client: req.oauth2.client,
+                    scope: req.oauth2.req.scope 
+                });
+            });
+        } else if (perm.permissions.length < scope.length){
+            res.render('dialog', { 
+                transactionID: req.oauth2.transactionID, 
+                user: req.user, 
+                client: req.oauth2.client,
+                scope: req.oauth2.req.scope 
+            });
+        } else {
+            var allGranted = scope.every(function(requested){
+                return perm.permissions.filter(function(present){
+                    return requested == present;
+                }).length >= 1;
+            });
+            if(allGranted){
+                //If no cancel field - allow assumed to be true
+                console.log('all done');
+                req.body.transaction_id = req.oauth2.transactionID;
+                req.body.allow = 'Allow';
+                req.body.scope = JSON.stringify(req.oauth2.req.scope);
+                next();                
+            } else { 
+                return res.render('dialog', {
+                    transactionID: req.oauth2.transactionID, 
+                    user: req.user, 
+                    client: req.oauth2.client,
+                    scope: req.oauth2.req.scope 
+                });
+            }
+        }    
     });
-  }
+  },
+  server.decision(function(req, done){
+      return done(null, {scope: req.body.scope});
+  })    
 ]
 
 // user decision endpoint
@@ -209,7 +251,13 @@ exports.authorization = [
 exports.decision = [
   login.ensureLoggedIn(),
   server.decision(function(req, done){
-    return done(null, { scope: req.body.scope });
+    var userId = req.user.userId;
+    var clientId = req.oauth2.client.clientId;
+    var scope = req.body.scope;
+    db.permissions.addArray(userId, clientId, JSON.parse(scope), function(err, doc){
+      if (err) { console.log(err); }
+      return done(null, { scope: req.body.scope });
+    });
   })
 ]
 
