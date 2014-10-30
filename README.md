@@ -9,7 +9,9 @@ Implementation of:
 
 ##  Usage
 
-This is an implementation of an Oauth2.0 provider with the implicit flow authorization method strongly developed, and asample Javascript SDK added to access the provider.
+This is an implementation of an Oauth2.0 provider with the implicit flow authorization in focus.
+
+A sample Javascript SDK is included to access the provider.
 
 ### Registration and Account
 
@@ -22,12 +24,15 @@ Users can view details of created apps at /account/appdetails
 ### Login
 
 The standard flow login endpoint is /login
+
 The implicit flow login endpoint is /loginImplicit
+
 Logout endpoint is at /logout
 
 ### API and Scope
 
 The included API endpoints are get and post to /me/info.
+
 These require 'info-read' and 'info-write' permissions respectively.
 
 ### Javascript SDK
