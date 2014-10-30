@@ -1,0 +1,15 @@
+<% if (apps.length > 0) { %>
+    <ol>
+    <% for(var i=0; i<apps.length; i++) {%>
+        <li>Name: <%= apps[i].name %>
+            <ul>
+                <li>Id: <%= apps[i].clientId %></li>
+                <li>Secret: <%= apps[i].clientSecret %></li>
+            </ul>
+        </li>
+    <% } %>
+    </ol>
+<% } else { %>
+<p>You have no apps in this user account!</p>
+<% } %>
+
